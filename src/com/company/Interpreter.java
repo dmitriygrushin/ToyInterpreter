@@ -1,77 +1,94 @@
 package com.company;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Interpreter {
     private String text;
     private Token currentToken = null;
-    private int pos = 0; // position/index of where the interpreter is in the string
+    private LinkedList<Token> tokens;
 
-    public Interpreter(String text) {
+    public Interpreter(String text) throws Exception {
         this.text = text;
+        tokens = LexicalAnalyzer(text);
+    }
+    public boolean isNumeric(String str) {
+        return str.matches("-?\\d+(\\.\\d+)?");
     }
 
     // Tokenizer/Lexical Analyzer: Breaks string apart into tokens
-    public Token getNextToken() throws Exception {
-        String text = this.text;
+    // Returns: list of all tokens in the String this.text
+    public LinkedList<Token> LexicalAnalyzer(String text) throws Exception {
 
-        // check if there is any more input left to convert into tokens (check if you're at EOF)
-        if (this.pos > text.length() - 1) {
-            // EOF: end of line
-            return new Token("EOF", '\0');
+        Pattern p = Pattern.compile("(\\d+)|([+-])");
+        Matcher m = p.matcher(text);
+
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        while(m.find()) {
+            String token = m.group(0); // group 0 will return the entire match like. group 1 would be null for +
+
+            if (isNumeric(token)) {
+                // check if token is a integer
+                tokens.add(new Token("INTEGER", token));
+            } else if (token.equals("+")) {
+                // check if the token is an operator (+)
+                tokens.add(new Token("PLUS", token));
+            } else if (token.equals("-")) {
+                // check if the token is an operator (-)
+                tokens.add(new Token("MINUS", token));
+            } else {
+                throw new Exception("Interpreter error: getNextToken");
+            }
         }
 
-        // get character at current pos
-        char currentChar = text.charAt(this.pos);
+        return tokens;
 
-        // check if a character is a digit
-        if (Character.isDigit(currentChar)) {
-            this.pos += 1; // advance the position
-            return new Token("INTEGER", currentChar);
-        }
-
-        if (currentChar == '+') {
-            this.pos += 1; // advance the position
-            return new Token("PLUS", currentChar);
-        }
-
-        // if the character is something other than a digit or + then throw error
-        throw new Exception("Interpreter error: getNextToken | Character other than digit or +");
     }
 
     // compare currentToken type to the token type passed as a parameter to make sure they're a match
     public void eat(String tokenType) throws Exception {
         if (Objects.equals(this.currentToken.getType(), tokenType)) {
-            this.currentToken = this.getNextToken(); // currentToken will now be the next token
+            this.currentToken = this.tokens.poll(); // currentToken will now be the next token
         } else {
-            throw new Exception("Interpreter error: eat | Different token types");
+            throw new Exception("Interpreter error: eat");
         }
     }
 
     // expression: INTEGER PLUS INTEGER
     public int expr() throws Exception {
-        // get first token
-        this.currentToken = this.getNextToken(); // need to use getNextToken since the original token is null
+        this.currentToken = this.tokens.poll();
 
-        // left int token (currently single-digit implementation)
+        // left int token
         Token left = this.currentToken;
         eat("INTEGER");
 
-
-        // (+) operator token
         Token op = this.currentToken;
-        eat("PLUS");
 
-
-        // right int token (currently single-digit implementation)
+        if (op.getType().equals("PLUS")) {
+            // (+) operator token
+            eat("PLUS");
+        } else if (op.getType().equals("MINUS")) {
+            eat("MINUS");
+        }
+        // right int token
         Token right = this.currentToken;
         eat("INTEGER");
 
         // after the above call the this.currentToken is set to EOF
 
-        // convert INTEGER token into int since it's stored as char then return the sum
-        return Character.getNumericValue(left.getValue()) + Character.getNumericValue(right.getValue());
-    }
+        // convert INTEGER token into int since it's stored as string then return the sum
+        if (op.getType().equals("PLUS")) {
+            return Integer.parseInt(left.getValue()) + Integer.parseInt(right.getValue());
+        }
+        if (op.getType().equals("MINUS")) {
+            return Integer.parseInt(left.getValue()) - Integer.parseInt(right.getValue());
+        }
 
+        throw new Exception("Incorrect operator");
+    }
 
 }

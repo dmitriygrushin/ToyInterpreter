@@ -2,14 +2,14 @@ package com.company;
 
 public class Token {
     private final String type;
-    private final char value;
+    private final String value;
 
-    public Token(String type, char value) {
+    public Token(String type, String value) {
         this.type = type;
         this.value = value;
     }
 
-    public char getValue() {
+    public String getValue() {
         return value;
     }
 
