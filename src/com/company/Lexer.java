@@ -75,7 +75,7 @@ public class Lexer {
         return new Token(TokenType.ID.toString(), result.toString());
     }
 
-    /*  Actual Lexer: Uses methods above to break down Strings of text into tokens
+    /* Actual Lexer: Uses methods above to break down Strings of text into tokens
         @returns Token */
     public Token getNextToken() throws Exception {
         while (this.currentCharacter != '\0') {
@@ -129,7 +129,7 @@ public class Lexer {
 
             this.error();
         }
-        return new Token(TokenType.EOF.toString(), "\0");
+        return new Token(TokenType.EOF.toString(), TokenType.EOF.toString());
     }
 }
 /*

@@ -13,7 +13,7 @@ public class Main {
 
          */
 
-        Lexer lexer = new Lexer("(x + 2");
+        Lexer lexer = new Lexer("(x + 2)");
 
         Token token = lexer.getNextToken();
         Token token2 = lexer.getNextToken();
@@ -38,11 +38,11 @@ public class Main {
 
     Identifier: Letter [Letter | Digit]*
 
-    Letter: a|...|z|A|...|Z|_
+    Letter: a|...|z|A|...|Z|_               (- Terminal -)
 
     Literal: 0 | NonZeroDigit Digit*
 
-    NonZeroDigit: 1|...|9
+    NonZeroDigit: 1|...|9                   (- Terminal -)
 
-    Digit: 0|1|...|9
+    Digit: 0|1|...|9                        (- Terminal -)
  */
