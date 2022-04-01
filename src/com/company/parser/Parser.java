@@ -127,10 +127,8 @@ public class Parser {
 
     /* Variable | This will replace the 'Letter' production */
     // Identifier: Letter [Letter | Digit]*
-    public AbstractSyntaxTree identifier() throws Exception {
-        AbstractSyntaxTree node = new Variable(this.currentToken);
-        this.match(TokenType.ID.toString());
-        return node;
+    public void identifier() throws Exception {
+        System.out.println("--id--");
     }
 
     /*  Letters will be used for variables so there needs to be place to store them */
@@ -146,10 +144,9 @@ public class Parser {
         For the moment this will just be treated as a simple integer type */
 
     // Literal: 0 | NonZeroDigit Digit*
-    public AbstractSyntaxTree literal() throws Exception {
+    public void literal() throws Exception {
         AbstractSyntaxTree node = new Number(this.currentToken);
         this.match(TokenType.INTEGER.toString());
-        return node;
     }
 
     /*  update the below 2 methods later: nonDigitZero and digit

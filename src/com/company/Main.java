@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.parser.Parser;
+
 public class Main {
 
     public static void main(String[] args) throws Exception {
@@ -13,16 +15,10 @@ public class Main {
 
          */
 
-        Lexer lexer = new Lexer("(x + 2)");
+        Lexer lexer = new Lexer("x = 2");
+        Parser parser = new Parser(lexer);
 
-        Token token = lexer.getNextToken();
-        Token token2 = lexer.getNextToken();
-
-
-        System.out.println(token.toString());
-        System.out.println(token2.toString());
-
-
+        parser.program();
     }
 }
 /*
