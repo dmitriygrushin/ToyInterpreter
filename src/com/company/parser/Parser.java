@@ -6,13 +6,17 @@ import com.company.TokenType;
 import com.company.parser.abstract_syntax_tree.*;
 import com.company.parser.abstract_syntax_tree.Number;
 
+import java.util.HashMap;
+
 public class Parser {
     Lexer lexer;
     Token currentToken;
+    HashMap<String, Integer> dic;
 
     public Parser(Lexer lexer) throws Exception {
         this.lexer = lexer;
         this.currentToken = this.lexer.getNextToken();
+        this.dic = new HashMap<>();
     }
 
     public void error () throws Exception {
@@ -35,18 +39,16 @@ public class Parser {
     // Program: Assignment*
     public void program() throws Exception {
         this.assignment();
-        while (this.currentToken.getType() != TokenType.EOF.toString()) {
-           this.assignment();
+        while (this.currentToken.getValue() != TokenType.EOF.name()) {
+            this.assignment();
         }
     }
 
-    // Assignment: Identifier = Exp;
-    public AbstractSyntaxTree assignment() throws Exception {
-        AbstractSyntaxTree left = this.identifier();
-        Token token = this.currentToken;
-        this.match(TokenType.ASSIGN.toString());
-        AbstractSyntaxTree right = this.exp();
-        return new Assignment(left, token, right);
+    // Assignment: Identifier = Exp; Identifier ASSIGN Exp;
+    public void assignment() throws Exception {
+        this.identifier();
+        this.match(TokenType.ASSIGN.name());
+        this.exp();
     }
 
     /* (Warning: Left recursive)
@@ -56,21 +58,23 @@ public class Parser {
         Exp: Term Exp'                      |
         Exp': +Term E' | -Term E' | ε       | +, -, ε
         */
-    public AbstractSyntaxTree exp() throws Exception {
-        this.match(TokenType.PLUS.toString());
-        return new BinaryOperator(this.fact(), new Token(TokenType.PLUS.toString(), "+"), this.termBar());
+    public void exp() throws Exception {
+        this.term();
+        this.expBar();
     }
 
-    public AbstractSyntaxTree expBar() throws Exception {
-       if (this.currentToken.getType() == TokenType.PLUS.toString()) {
-           this.match(TokenType.PLUS.toString());
-           return new BinaryOperator(this.fact(), new Token(TokenType.PLUS.toString(), "+"), this.termBar());
-       } else if (this.currentToken.getType() == TokenType.MINUS.toString()) {
-           this.match(TokenType.MINUS.toString());
-           return new BinaryOperator(this.fact(), new Token(TokenType.MINUS.toString(), "-"), this.termBar());
-       } else {
-           return new Number(new Token(TokenType.INTEGER.toString(), "0"));
-       }
+    public void expBar() throws Exception {
+        if (this.currentToken.getValue() == TokenType.PLUS.name()) {
+            this.match(TokenType.PLUS.name());
+            this.term();
+            this.expBar();
+        }
+
+        if (this.currentToken.getValue() == TokenType.MINUS.name()) {
+            this.match(TokenType.MINUS.name());
+            this.term();
+            this.expBar();
+        }
     }
 
     /*  (Warning: Left recursive)
@@ -80,41 +84,45 @@ public class Parser {
        Term: Fact Term'          |
        Term': * Fact Term' | ε   | *, ε
         */
-    public AbstractSyntaxTree term() throws Exception {
-        return new BinaryOperator(this.fact(), new Token(TokenType.MUL.toString(), "*"), this.termBar());
+    public void term() throws Exception {
+        this.fact();
+        this.termBar();
     }
 
-    public AbstractSyntaxTree termBar() throws Exception {
-        if (this.currentToken.getType() == TokenType.MUL.toString()) {
-            this.match(TokenType.MUL.toString());
-            return new BinaryOperator(this.fact(), new Token(TokenType.MUL.toString(), "*"), this.termBar());
-        } else {
-            return new Number(new Token(TokenType.INTEGER.toString(), "1"));
+    public void termBar() throws Exception {
+        if (this.currentToken.getType() == TokenType.MUL.name()) {
+            this.match(TokenType.MUL.name());
+            this.fact();
+            this.termBar();
         }
     }
 
 
     // Fact: ( Exp ) | - Fact | + Fact | Literal | Identifier
-    public AbstractSyntaxTree fact() throws Exception {
-        if (this.currentToken.getType() == TokenType.LPAREN.toString()) {
-            this.match(TokenType.LPAREN.toString());
-            AbstractSyntaxTree node = this.exp();
-            this.match(TokenType.RPAREN.toString());
-            return node;
-        } else if (this.currentToken.getType() == TokenType.MINUS.toString()) {
-            this.match(TokenType.MINUS.toString());
-            return new UnaryOperator(this.currentToken, this.fact());
-        } else if (this.currentToken.getType() == TokenType.PLUS.toString()) {
-            this.match(TokenType.PLUS.toString());
-            return new UnaryOperator(this.currentToken, this.fact());
-        } else if (this.currentToken.getType() == TokenType.INTEGER.toString()) {
-            this.match(TokenType.INTEGER.toString());
-            return new Number(this.currentToken);
-        } else if (this.currentToken.getType() == TokenType.ID.toString()) {
-            return this.identifier();
+    public void fact() throws Exception {
+        if (this.currentToken.getType() == TokenType.LPAREN.name()) {
+            this.match(TokenType.LPAREN.name());
+            this.exp();
+            if (this.currentToken.getType() == TokenType.RPAREN.name()) {
+                this.match(TokenType.RPAREN.name());
+            }
+        } else if (this.currentToken.getType() == TokenType.MINUS.name()) {
+            this.match(TokenType.MINUS.name());
+            this.fact();
+        } else if (this.currentToken.getType() == TokenType.PLUS.name()) {
+            this.match(TokenType.PLUS.name());
+            this.fact();
+        }  else if (this.currentToken.getType() == TokenType.INTEGER.name()) {
+            this.literal();
+        }else if (this.currentToken.getType() == TokenType.ID.name()) {
+            this.identifier();
         } else {
-            throw new Exception("Syntax error");
+            this.error();
         }
+    }
+
+    public void printTable() {
+        dic.forEach((key, value) -> System.out.println(key + " " + value));
     }
 
     /* Variable | This will replace the 'Letter' production */
