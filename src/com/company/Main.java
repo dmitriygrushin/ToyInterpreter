@@ -12,7 +12,7 @@ public class Main {
 
         System.out.println(result); */
 
-        Lexer lexer = new Lexer("x = 1 + 2;");
+        Lexer lexer = new Lexer("x = 2 + 2;");
 
         Parser parser = new Parser(lexer);
 

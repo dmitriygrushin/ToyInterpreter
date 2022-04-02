@@ -48,8 +48,7 @@ public class Parser {
 
     // Assignment: Identifier = Exp; ----> Identifier ASSIGN Exp SEMICOLON
     public void assignment() throws Exception {
-        //this.identifier();
-        this.match(TokenType.ID.name());
+        this.identifier();
         this.match(TokenType.ASSIGN.name());
         this.exp();
         this.match(TokenType.SEMICOLON.name());
@@ -120,11 +119,9 @@ public class Parser {
             this.fact();
         }  else if (this.currentToken.getType() == TokenType.INTEGER.name()) {
             System.out.println("fact() - match(int)");
-            this.match(TokenType.INTEGER.name());
-            //this.literal();
+            this.literal();
         }else if (this.currentToken.getType() == TokenType.ID.name()) {
-            this.match(TokenType.ID.name());
-            // this.identifier();
+            this.identifier();
         } else {
             System.out.println("----------ERROR----------");
             this.error();
@@ -140,7 +137,6 @@ public class Parser {
     // Identifier: Letter [Letter | Digit]*
     public void identifier() throws Exception {
         this.match(TokenType.ID.name());
-        System.out.println("--id--");
     }
 
     /*  Letters will be used for variables so there needs to be place to store them */
@@ -157,7 +153,6 @@ public class Parser {
 
     // Literal: 0 | NonZeroDigit Digit*
     public void literal() throws Exception {
-        //AbstractSyntaxTree node = new Number(this.currentToken);
         this.match(TokenType.INTEGER.toString());
     }
 

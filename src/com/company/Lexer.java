@@ -29,18 +29,6 @@ public class Lexer {
         }
     }
 
-    /*  peek for assignment statement (likely won't need this for my interpreter since assignment is '=' not ':=')
-        @returns \0 or character at peekPos */
-    public char peek() {
-        int peekPos = this.pos - 1;
-
-        if (peekPos > this.text.length() - 1) {
-            return '\0';
-        } else {
-            return this.text.charAt(peekPos);
-        }
-    }
-
     /* skip whitespace characters */
     public void skipWhitespace() {
         while (this.currentCharacter != '\0' && Character.isSpaceChar(this.currentCharacter)) {
@@ -51,12 +39,15 @@ public class Lexer {
     /*  Concatenates integer characters that's consumed from the input into a string
         parses String to Integer then
         @returns that Integer */
-    public int integer() {
+    public int integer() throws Exception {
         StringBuilder result = new StringBuilder();
 
         while (this.currentCharacter != '\0' && Character.isDigit(this.currentCharacter)) {
             result.append(this.currentCharacter);
             this.advance();
+        }
+        if (result.length() > 1 && result.charAt(0) == '0') {
+            throw new Exception("Lexer: Grammar Error | Literals can NOT have superfluous zeros");
         }
        return Integer.parseInt(String.valueOf(result));
     }
@@ -135,46 +126,3 @@ public class Lexer {
         return new Token(TokenType.EOF.toString(), TokenType.EOF.toString());
     }
 }
-/*
-            if (this.currentCharacter == '=') {
-                    System.out.println("is =");
-                    this.advance();
-                    return new Token(TokenType.ASSIGN.toString(), "=");
-                    }
-
-                    if (this.currentCharacter == '+') {
-                    System.out.println("is +");
-                    this.advance();
-                    return new Token(TokenType.PLUS.toString(), "+");
-                    }
-
-                    if (this.currentCharacter == '-') {
-                    System.out.println("is -");
-                    this.advance();
-                    return new Token(TokenType.MINUS.toString(), "-");
-                    }
-
-                    if (this.currentCharacter == '*') {
-                    System.out.println("is *");
-                    this.advance();
-                    return new Token(TokenType.MUL.toString(), "*");
-                    }
-
-                    if (this.currentCharacter == '/') {
-                    System.out.println("is /");
-                    this.advance();
-                    return new Token(TokenType.DIV.toString(), "/");
-                    }
-
-                    if (this.currentCharacter == '(') {
-                    System.out.println("is (");
-                    this.advance();
-                    return new Token(TokenType.LPAREN.toString(), "(");
-                    }
-
-                    if (this.currentCharacter == ')') {
-                    system.out.println("is )");
-                    this.advance();
-                    return new token(tokentype.rparen.tostring(), ")");
-                    }
-*/
