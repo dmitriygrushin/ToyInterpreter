@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class Parser {
     Lexer lexer;
     Token currentToken;
-    HashMap<String, Integer> dic;
+    HashMap<String, Integer> dic; // will store the key, val of identifiers
 
     public Parser(Lexer lexer) throws Exception {
         this.lexer = lexer;
@@ -28,6 +28,8 @@ public class Parser {
         matching tokens get eaten and move on to the next token (advance currentToken)
         else throw a syntax error */
     public void match(String passedTokenType) throws Exception {
+        System.out.println("currentToken: " + this.currentToken.getType());
+        System.out.println("passedToken: " + passedTokenType);
         if (!this.currentToken.getType().equals(passedTokenType)) this.error();
         this.currentToken = this.lexer.getNextToken();
     }
@@ -44,11 +46,13 @@ public class Parser {
         }
     }
 
-    // Assignment: Identifier = Exp; Identifier ASSIGN Exp;
+    // Assignment: Identifier = Exp; ----> Identifier ASSIGN Exp SEMICOLON
     public void assignment() throws Exception {
-        this.identifier();
+        //this.identifier();
+        this.match(TokenType.ID.name());
         this.match(TokenType.ASSIGN.name());
         this.exp();
+        this.match(TokenType.SEMICOLON.name());
     }
 
     /* (Warning: Left recursive)
@@ -56,7 +60,7 @@ public class Parser {
         ----- Eliminating Left Recursion ----------------
                                             | First
         Exp: Term Exp'                      |
-        Exp': +Term E' | -Term E' | ε       | +, -, ε
+        Exp': +Term Exp' | -Term Exp' | ε       | +, -, ε
         */
     public void exp() throws Exception {
         this.term();
@@ -64,13 +68,13 @@ public class Parser {
     }
 
     public void expBar() throws Exception {
-        if (this.currentToken.getValue() == TokenType.PLUS.name()) {
+        System.out.println("testing expBar");
+        if (this.currentToken.getType() == TokenType.PLUS.name()) {
+            System.out.println("expBar() - match(plus)");
             this.match(TokenType.PLUS.name());
             this.term();
             this.expBar();
-        }
-
-        if (this.currentToken.getValue() == TokenType.MINUS.name()) {
+        } else if (this.currentToken.getType() == TokenType.MINUS.name()) {
             this.match(TokenType.MINUS.name());
             this.term();
             this.expBar();
@@ -100,6 +104,7 @@ public class Parser {
 
     // Fact: ( Exp ) | - Fact | + Fact | Literal | Identifier
     public void fact() throws Exception {
+        System.out.println("testing factor");
         if (this.currentToken.getType() == TokenType.LPAREN.name()) {
             this.match(TokenType.LPAREN.name());
             this.exp();
@@ -110,17 +115,23 @@ public class Parser {
             this.match(TokenType.MINUS.name());
             this.fact();
         } else if (this.currentToken.getType() == TokenType.PLUS.name()) {
+            System.out.println("fact() - match(plus)");
             this.match(TokenType.PLUS.name());
             this.fact();
         }  else if (this.currentToken.getType() == TokenType.INTEGER.name()) {
-            this.literal();
+            System.out.println("fact() - match(int)");
+            this.match(TokenType.INTEGER.name());
+            //this.literal();
         }else if (this.currentToken.getType() == TokenType.ID.name()) {
-            this.identifier();
+            this.match(TokenType.ID.name());
+            // this.identifier();
         } else {
+            System.out.println("----------ERROR----------");
             this.error();
         }
     }
 
+    // will print the key value pairs from the dictionary of variables
     public void printTable() {
         dic.forEach((key, value) -> System.out.println(key + " " + value));
     }
@@ -128,6 +139,7 @@ public class Parser {
     /* Variable | This will replace the 'Letter' production */
     // Identifier: Letter [Letter | Digit]*
     public void identifier() throws Exception {
+        this.match(TokenType.ID.name());
         System.out.println("--id--");
     }
 
@@ -145,7 +157,7 @@ public class Parser {
 
     // Literal: 0 | NonZeroDigit Digit*
     public void literal() throws Exception {
-        AbstractSyntaxTree node = new Number(this.currentToken);
+        //AbstractSyntaxTree node = new Number(this.currentToken);
         this.match(TokenType.INTEGER.toString());
     }
 

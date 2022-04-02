@@ -48,7 +48,7 @@ public class Lexer {
         }
     }
 
-    /*  Concatenates characters that's consumed from the input into a string
+    /*  Concatenates integer characters that's consumed from the input into a string
         parses String to Integer then
         @returns that Integer */
     public int integer() {
@@ -67,12 +67,12 @@ public class Lexer {
     public Token id () {
         StringBuilder result = new StringBuilder();
 
-        while (this.currentCharacter != '\0' && Character.isLetterOrDigit(this.currentCharacter)) {
+        while (this.currentCharacter != '\0' && (Character.isLetterOrDigit(this.currentCharacter)) || this.currentCharacter == '_') {
             result.append(this.currentCharacter);
             this.advance();
         }
 
-        return new Token(TokenType.ID.toString(), result.toString());
+        return new Token(TokenType.ID.name(), result.toString());
     }
 
     /* Actual Lexer: Uses methods above to break down Strings of text into tokens
@@ -80,51 +80,54 @@ public class Lexer {
     public Token getNextToken() throws Exception {
         while (this.currentCharacter != '\0') {
             if (Character.isSpaceChar(this.currentCharacter)) {
-                System.out.println("skipWhitespace");
+                // System.out.println("skipWhitespace");
                 this.skipWhitespace();
                 // this.advance(); // test this later to check if you can remove the skipWhitespace method
                 continue;
             }
 
             if (Character.isAlphabetic(this.currentCharacter)) {
-                System.out.println("isAlphabetic");
+                // System.out.println("isAlphabetic");
                 return this.id();
             }
 
             if (Character.isDigit(this.currentCharacter)) {
-                System.out.println("isDigit");
-                return new Token(TokenType.INTEGER.toString(), String.valueOf(this.integer()));
+                // System.out.println("isDigit");
+                return new Token(TokenType.INTEGER.name(), String.valueOf(this.integer()));
             }
 
             switch(this.currentCharacter) {
                 case '=':
-                    System.out.println("is =");
+                    // System.out.println("is =");
                     this.advance();
-                    return new Token(TokenType.ASSIGN.toString(), "=");
+                    return new Token(TokenType.ASSIGN.name(), "=");
                 case '+':
-                    System.out.println("is +");
+                    // System.out.println("is +");
                     this.advance();
-                    return new Token(TokenType.PLUS.toString(), "+");
+                    return new Token(TokenType.PLUS.name(), "+");
                 case '-':
-                    System.out.println("is -");
+                    // System.out.println("is -");
                     this.advance();
-                    return new Token(TokenType.MINUS.toString(), "-");
+                    return new Token(TokenType.MINUS.name(), "-");
                 case '*':
-                    System.out.println("is *");
+                    // System.out.println("is *");
                     this.advance();
-                    return new Token(TokenType.MUL.toString(), "*");
+                    return new Token(TokenType.MUL.name(), "*");
                 case '/':
-                    System.out.println("is /");
+                    // System.out.println("is /");
                     this.advance();
-                    return new Token(TokenType.DIV.toString(), "/");
+                    return new Token(TokenType.DIV.name(), "/");
                 case '(':
-                    System.out.println("is (");
+                    // System.out.println("is (");
                     this.advance();
-                    return new Token(TokenType.LPAREN.toString(), "(");
+                    return new Token(TokenType.LPAREN.name(), "(");
                 case ')':
-                    System.out.println("is )");
+                    // System.out.println("is )");
                     this.advance();
-                    return new Token(TokenType.RPAREN.toString(), ")");
+                    return new Token(TokenType.RPAREN.name(), ")");
+                case ';':
+                    this.advance();
+                    return new Token(TokenType.SEMICOLON.name(), ";");
             }
 
             this.error();

@@ -5,17 +5,15 @@ import com.company.parser.Parser;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        /*
-        String text = "3- 500";
+        /* String text = "3- 500";
         Interpreter interpreter = new Interpreter(text);
 
         int result = interpreter.expr();
 
-        System.out.println(result);
+        System.out.println(result); */
 
-         */
+        Lexer lexer = new Lexer("x = 1 + 2;");
 
-        Lexer lexer = new Lexer("x = 2");
         Parser parser = new Parser(lexer);
 
         parser.program();
@@ -41,4 +39,24 @@ public class Main {
     NonZeroDigit: 1|...|9                   (- Terminal -)
 
     Digit: 0|1|...|9                        (- Terminal -)
+
+
+    -----------------Eliminating Left Recursion------------------------------------------------
+       Program: Assignment*
+
+       Assignment: Identifier = Exp;
+
+       Exp: Term Exp'                      |
+       Exp': +Term E' | -Term E' | ε       | +, -, ε
+
+       Term: Fact Term'          |
+       Term': * Fact Term' | ε   | *, ε
+
+       Fact: ( Exp ) | - Fact | + Fact | Literal | Identifier
+
+       Identifier: Letter [Letter | Digit]*
+
+       Literal: 0 | NonZeroDigit Digit*
+
+
  */
