@@ -11,15 +11,15 @@ import java.util.HashMap;
 public class Parser {
     Lexer lexer;
     Token currentToken;
-    HashMap<String, Integer> dic; // will store the key, val of identifiers
+    HashMap<String, Integer> dictionary; // will store the key, val of identifiers
 
     public Parser(Lexer lexer) throws Exception {
         this.lexer = lexer;
         this.currentToken = this.lexer.getNextToken();
-        this.dic = new HashMap<>();
+        this.dictionary = new HashMap<>();
     }
 
-    public void error () throws Exception {
+    public Exception error () throws Exception {
         throw new Exception("Syntax Error");
     }
 
@@ -48,35 +48,35 @@ public class Parser {
 
     // Assignment: Identifier = Exp; ----> Identifier ASSIGN Exp SEMICOLON
     public void assignment() throws Exception {
-        this.identifier();
+        String variableName = this.identifier();
         this.match(TokenType.ASSIGN.name());
-        this.exp();
+        int variableValue = this.exp();
         this.match(TokenType.SEMICOLON.name());
+        dictionary.put(variableName, variableValue);
     }
 
     /* (Warning: Left recursive)
         Exp: Exp + Term | Exp - Term | Term
         ----- Eliminating Left Recursion ----------------
-                                            | First
-        Exp: Term Exp'                      |
-        Exp': +Term Exp' | -Term Exp' | ε       | +, -, ε
+                                                | First
+        Exp: Term Exp'                          |
+        Exp': +Term Exp' | -Term Exp' |  ε      | +, -, ε
         */
-    public void exp() throws Exception {
-        this.term();
-        this.expBar();
+    public int exp() throws Exception {
+        return this.term() + this.expBar();
     }
 
-    public void expBar() throws Exception {
+    public int expBar() throws Exception {
         System.out.println("testing expBar");
         if (this.currentToken.getType() == TokenType.PLUS.name()) {
             System.out.println("expBar() - match(plus)");
             this.match(TokenType.PLUS.name());
-            this.term();
-            this.expBar();
+            return this.term() + this.expBar();
         } else if (this.currentToken.getType() == TokenType.MINUS.name()) {
             this.match(TokenType.MINUS.name());
-            this.term();
-            this.expBar();
+            return -this.term() + this.expBar();
+        } else {
+            return 0; // ε add nothing
         }
     }
 
@@ -87,56 +87,65 @@ public class Parser {
        Term: Fact Term'          |
        Term': * Fact Term' | ε   | *, ε
         */
-    public void term() throws Exception {
-        this.fact();
-        this.termBar();
+    public int term() throws Exception {
+        return this.fact() * this.termBar();
     }
 
-    public void termBar() throws Exception {
+    public int termBar() throws Exception {
         if (this.currentToken.getType() == TokenType.MUL.name()) {
             this.match(TokenType.MUL.name());
-            this.fact();
-            this.termBar();
+            return this.fact() * this.termBar();
+        } else {
+            return 1;
         }
     }
 
-
     // Fact: ( Exp ) | - Fact | + Fact | Literal | Identifier
-    public void fact() throws Exception {
+    public int fact() throws Exception {
         System.out.println("testing factor");
         if (this.currentToken.getType() == TokenType.LPAREN.name()) {
             this.match(TokenType.LPAREN.name());
-            this.exp();
+            int expression = this.exp();
             if (this.currentToken.getType() == TokenType.RPAREN.name()) {
                 this.match(TokenType.RPAREN.name());
             }
+            return expression;
         } else if (this.currentToken.getType() == TokenType.MINUS.name()) {
             this.match(TokenType.MINUS.name());
-            this.fact();
+            return -this.fact();
         } else if (this.currentToken.getType() == TokenType.PLUS.name()) {
             System.out.println("fact() - match(plus)");
             this.match(TokenType.PLUS.name());
-            this.fact();
+            return this.fact();
         }  else if (this.currentToken.getType() == TokenType.INTEGER.name()) {
             System.out.println("fact() - match(int)");
-            this.literal();
+            return this.literal();
         }else if (this.currentToken.getType() == TokenType.ID.name()) {
-            this.identifier();
-        } else {
-            System.out.println("----------ERROR----------");
-            this.error();
+            return Integer.parseInt(this.identifier());
         }
+
+        throw new Exception("Syntax Error");
     }
 
     // will print the key value pairs from the dictionary of variables
     public void printTable() {
-        dic.forEach((key, value) -> System.out.println(key + " " + value));
+        dictionary.forEach((key, value) -> System.out.println(key + " = " + value));
     }
 
     /* Variable | This will replace the 'Letter' production */
     // Identifier: Letter [Letter | Digit]*
-    public void identifier() throws Exception {
+    public String identifier() throws Exception {
+       /*   if dictionary contains this variable then return its integer value
+            else return its variable name to put into the dictionary */
+        String variable;
+        if (dictionary.containsKey(this.currentToken.getValue())) {
+             variable = String.valueOf(dictionary.get(this.currentToken.getValue()));
+        } else {
+            variable = this.currentToken.getValue();
+        }
         this.match(TokenType.ID.name());
+        // If Identifier's `value` is returned then it needs to be parsed into its integer type
+        return variable;
     }
 
     /*  Letters will be used for variables so there needs to be place to store them */
@@ -152,8 +161,10 @@ public class Parser {
         For the moment this will just be treated as a simple integer type */
 
     // Literal: 0 | NonZeroDigit Digit*
-    public void literal() throws Exception {
+    public int literal() throws Exception {
+        int lit =  Integer.parseInt(currentToken.getValue());
         this.match(TokenType.INTEGER.toString());
+        return lit;
     }
 
     /*  update the below 2 methods later: nonDigitZero and digit
