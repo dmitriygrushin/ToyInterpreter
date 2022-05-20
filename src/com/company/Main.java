@@ -1,7 +1,5 @@
 package com.company;
 
-import com.company.parser.Parser;
-
 public class Main {
 
     public static void main(String[] args) throws Exception {

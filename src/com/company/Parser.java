@@ -1,10 +1,8 @@
-package com.company.parser;
+package com.company;
 
 import com.company.Lexer;
 import com.company.Token;
 import com.company.TokenType;
-import com.company.parser.abstract_syntax_tree.*;
-import com.company.parser.abstract_syntax_tree.Number;
 
 import java.util.HashMap;
 
@@ -19,7 +17,7 @@ public class Parser {
         this.dictionary = new HashMap<>();
     }
 
-    public Exception error () throws Exception {
+    public void error () throws Exception {
         throw new Exception("Syntax Error");
     }
 
@@ -28,8 +26,6 @@ public class Parser {
         matching tokens get eaten and move on to the next token (advance currentToken)
         else throw a syntax error */
     public void match(String passedTokenType) throws Exception {
-        //System.out.println("currentToken: " + this.currentToken.getType());
-        // System.out.println("passedToken: " + passedTokenType);
         if (!this.currentToken.getType().equals(passedTokenType)) this.error();
         this.currentToken = this.lexer.getNextToken();
     }
@@ -41,7 +37,7 @@ public class Parser {
     // Program: Assignment*
     public void program() throws Exception {
         this.assignment();
-        while (this.currentToken.getValue() != TokenType.EOF.name()) {
+        while (!this.currentToken.getValue().equals(TokenType.EOF.name())) {
             this.assignment();
         }
     }
@@ -68,11 +64,11 @@ public class Parser {
 
     public int expBar() throws Exception {
         //System.out.println("testing expBar");
-        if (this.currentToken.getType() == TokenType.PLUS.name()) {
+        if (this.currentToken.getType().equals(TokenType.PLUS.name())) {
             //System.out.println("expBar() - match(plus)");
             this.match(TokenType.PLUS.name());
             return this.term() + this.expBar();
-        } else if (this.currentToken.getType() == TokenType.MINUS.name()) {
+        } else if (this.currentToken.getType().equals(TokenType.MINUS.name())) {
             this.match(TokenType.MINUS.name());
             return -this.term() + this.expBar();
         } else {
@@ -92,7 +88,7 @@ public class Parser {
     }
 
     public int termBar() throws Exception {
-        if (this.currentToken.getType() == TokenType.MUL.name()) {
+        if (this.currentToken.getType().equals(TokenType.MUL.name())) {
             this.match(TokenType.MUL.name());
             return this.fact() * this.termBar();
         } else {
@@ -103,24 +99,24 @@ public class Parser {
     // Fact: ( Exp ) | - Fact | + Fact | Literal | Identifier
     public int fact() throws Exception {
         //System.out.println("testing factor");
-        if (this.currentToken.getType() == TokenType.LPAREN.name()) {
+        if (this.currentToken.getType().equals(TokenType.LPAREN.name())) {
             this.match(TokenType.LPAREN.name());
             int expression = this.exp();
-            if (this.currentToken.getType() == TokenType.RPAREN.name()) {
+            if (this.currentToken.getType().equals(TokenType.RPAREN.name())) {
                 this.match(TokenType.RPAREN.name());
             }
             return expression;
-        } else if (this.currentToken.getType() == TokenType.MINUS.name()) {
+        } else if (this.currentToken.getType().equals(TokenType.MINUS.name())) {
             this.match(TokenType.MINUS.name());
             return -this.fact();
-        } else if (this.currentToken.getType() == TokenType.PLUS.name()) {
+        } else if (this.currentToken.getType().equals(TokenType.PLUS.name())) {
             //System.out.println("fact() - match(plus)");
             this.match(TokenType.PLUS.name());
             return this.fact();
-        }  else if (this.currentToken.getType() == TokenType.INTEGER.name()) {
-            //System.out.println("fact() - match(int)");
+        }  else if (this.currentToken.getType().equals(TokenType.INTEGER.name())) {
+            ////System.out.println("fact() - match(int)");
             return this.literal();
-        }else if (this.currentToken.getType() == TokenType.ID.name()) {
+        }else if (this.currentToken.getType().equals(TokenType.ID.name())) {
             return Integer.parseInt(this.identifier());
         }
 
@@ -132,7 +128,6 @@ public class Parser {
         dictionary.forEach((key, value) -> System.out.println(key + " = " + value));
     }
 
-    /* Variable | This will replace the 'Letter' production */
     // Identifier: Letter [Letter | Digit]*
     public String identifier() throws Exception {
        /*   if dictionary contains this variable then return its integer value
@@ -148,18 +143,6 @@ public class Parser {
         return variable;
     }
 
-    /*  Letters will be used for variables so there needs to be place to store them */
-    // Letter: a|...|z|A|...|Z|_               (- Terminal -)
-    public AbstractSyntaxTree letter() throws Exception {
-        AbstractSyntaxTree node = new Variable(this.currentToken);
-        this.match(TokenType.ID.toString());
-        return node;
-    }
-
-    /*  Will need to change 'literal' method
-        after changing the nonZeroDigit & digit methods.
-        For the moment this will just be treated as a simple integer type */
-
     // Literal: 0 | NonZeroDigit Digit*
     public int literal() throws Exception {
         int lit =  Integer.parseInt(currentToken.getValue());
@@ -167,21 +150,4 @@ public class Parser {
         return lit;
     }
 
-    /*  update the below 2 methods later: nonDigitZero and digit
-        since both of them can NOT be the same token.type
-        the grammar does NOT allow digits with leading 0s besides the #: 0 */
-
-    // NonZeroDigit: 1|...|9                   (- Terminal -)
-    public AbstractSyntaxTree nonDigitZero() throws Exception {
-        AbstractSyntaxTree node = new Number(this.currentToken);
-        this.match(TokenType.INTEGER.toString());
-        return node;
-    }
-
-    // Digit: 0|1|...|9                        (- Terminal -)
-    public AbstractSyntaxTree digit() throws Exception {
-        AbstractSyntaxTree node = new Number(this.currentToken);
-        this.match(TokenType.INTEGER.toString());
-        return node;
-    }
 }
