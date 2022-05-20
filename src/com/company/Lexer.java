@@ -31,7 +31,7 @@ public class Lexer {
 
     /* skip whitespace characters */
     public void skipWhitespace() {
-        while (this.currentCharacter != '\0' && Character.isSpaceChar(this.currentCharacter)) {
+        while (this.currentCharacter != '\0' && Character.isSpaceChar(this.currentCharacter) || Character.isWhitespace(this.currentCharacter)) {
             this.advance();
         }
     }
@@ -70,7 +70,7 @@ public class Lexer {
         @returns Token */
     public Token getNextToken() throws Exception {
         while (this.currentCharacter != '\0') {
-            if (Character.isSpaceChar(this.currentCharacter)) {
+            if (Character.isSpaceChar(this.currentCharacter) || Character.isWhitespace(this.currentCharacter)) {
                 // System.out.println("skipWhitespace");
                 this.skipWhitespace();
                 // this.advance(); // test this later to check if you can remove the skipWhitespace method

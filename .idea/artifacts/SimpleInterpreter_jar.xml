@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SimpleInterpreter:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SimpleInterpreter_jar</output-path>
+    <root id="archive" name="SimpleInterpreter.jar">
+      <element id="module-output" name="SimpleInterpreter" />
+    </root>
+  </artifact>
+</component>
