@@ -124,8 +124,15 @@ public class Parser {
     }
 
     // will print the key value pairs from the dictionary of variables
-    public void printTable() {
-        dictionary.forEach((key, value) -> System.out.println(key + " = " + value));
+    public StringBuilder printTable() {
+        StringBuilder result = new StringBuilder();
+        for (String name: dictionary.keySet()) {
+            String key = name.toString();
+            String value = dictionary.get(name).toString();
+            String keyValPair = dictionary.size() > 1 ? key + " = " + value + "\n" : key + " = " + value;
+            result.append(keyValPair);
+        }
+        return result;
     }
 
     // Identifier: Letter [Letter | Digit]*
