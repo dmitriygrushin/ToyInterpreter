@@ -47,7 +47,7 @@ public class Lexer {
             this.advance();
         }
         if (result.length() > 1 && result.charAt(0) == '0') {
-            throw new Exception("Lexer: Grammar Error | Literals can NOT have superfluous zeros");
+            throw new Exception("Lexer: Error | Literals can NOT have superfluous zeros");
         }
        return Integer.parseInt(String.valueOf(result));
     }

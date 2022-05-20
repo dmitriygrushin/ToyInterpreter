@@ -15,7 +15,7 @@ class MainTest {
     public void test1() throws IOException {
         String code = new String(Files.readAllBytes(Paths.get("C:\\Users\\dmitr\\Desktop\\ToyInterpreter\\src\\tests\\cases\\test1.txt")));
         Throwable exception = assertThrows(Exception.class, () -> interpreter(code));
-        String expected = "Lexer: Grammar Error | Literals can NOT have superfluous zeros";
+        String expected = "Lexer: Error | Literals can NOT have superfluous zeros";
         assertEquals(expected, exception.getMessage());
     }
 
