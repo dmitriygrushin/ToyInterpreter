@@ -28,8 +28,8 @@ public class Parser {
         matching tokens get eaten and move on to the next token (advance currentToken)
         else throw a syntax error */
     public void match(String passedTokenType) throws Exception {
-        System.out.println("currentToken: " + this.currentToken.getType());
-        System.out.println("passedToken: " + passedTokenType);
+        //System.out.println("currentToken: " + this.currentToken.getType());
+        // System.out.println("passedToken: " + passedTokenType);
         if (!this.currentToken.getType().equals(passedTokenType)) this.error();
         this.currentToken = this.lexer.getNextToken();
     }
@@ -67,9 +67,9 @@ public class Parser {
     }
 
     public int expBar() throws Exception {
-        System.out.println("testing expBar");
+        //System.out.println("testing expBar");
         if (this.currentToken.getType() == TokenType.PLUS.name()) {
-            System.out.println("expBar() - match(plus)");
+            //System.out.println("expBar() - match(plus)");
             this.match(TokenType.PLUS.name());
             return this.term() + this.expBar();
         } else if (this.currentToken.getType() == TokenType.MINUS.name()) {
@@ -102,7 +102,7 @@ public class Parser {
 
     // Fact: ( Exp ) | - Fact | + Fact | Literal | Identifier
     public int fact() throws Exception {
-        System.out.println("testing factor");
+        //System.out.println("testing factor");
         if (this.currentToken.getType() == TokenType.LPAREN.name()) {
             this.match(TokenType.LPAREN.name());
             int expression = this.exp();
@@ -114,11 +114,11 @@ public class Parser {
             this.match(TokenType.MINUS.name());
             return -this.fact();
         } else if (this.currentToken.getType() == TokenType.PLUS.name()) {
-            System.out.println("fact() - match(plus)");
+            //System.out.println("fact() - match(plus)");
             this.match(TokenType.PLUS.name());
             return this.fact();
         }  else if (this.currentToken.getType() == TokenType.INTEGER.name()) {
-            System.out.println("fact() - match(int)");
+            //System.out.println("fact() - match(int)");
             return this.literal();
         }else if (this.currentToken.getType() == TokenType.ID.name()) {
             return Integer.parseInt(this.identifier());

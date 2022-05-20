@@ -5,19 +5,9 @@ import com.company.parser.Parser;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        /* String text = "3- 500";
-        Interpreter interpreter = new Interpreter(text);
-
-        int result = interpreter.expr();
-
-        System.out.println(result); */
-
         Lexer lexer = new Lexer("x = 1; y = 2; z = ---(x+y)*(x+-y);");
-
         Parser parser = new Parser(lexer);
-
         parser.program();
-
         parser.printTable();
     }
 }
