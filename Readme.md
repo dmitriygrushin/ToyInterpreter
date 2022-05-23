@@ -1,5 +1,5 @@
 # Simple Interpreter for a Toy Language
-## Note:
+## (Note) To RUN the Application:
 * **You can use the already premade JAR file for quick tests** or you can just build the JAR yourself.
 
 ## Demonstration:
